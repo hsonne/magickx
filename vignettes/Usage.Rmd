@@ -1,0 +1,163 @@
+---
+title: "Usage of the Package magickx"
+author: "Hauke Sonnenberg"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Usage of the Package magickx}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Load the Packages
+
+```{r}
+library(magick)
+library(magickx)
+```
+
+## Load Example Images
+
+### Define a Helper Function to Create URLs
+
+```{r}
+to_image_url <- function(day_string, hours) file.path(
+  "http://wind.met.fu-berlin.de/loops/bwb", 
+  sprintf("BWBRR_TEXT_%s_%02d00.gif", day_string, hours)
+)
+```
+
+### Define URLs
+
+```{r}
+# Define different sets of URLs
+urls_1 <- to_image_url(day_string = "20180417", hours = 8:10)
+urls_2 <- to_image_url(day_string = "20170103", hours = 14:16)
+
+# Show URLs
+urls_1
+urls_2
+```
+
+### Read Images from URLs
+
+With the `image_read()`-function of the `magick` package you can read images 
+from many files or URLs in one function call. This function stops if there is
+any path or URL from which no image could be read. The package `magickx` 
+contains a function `try_image_read()` that does not stop on errors but skips 
+the file that cannot be read and prints an error message. 
+
+Using `image_read()` stops with an error:
+
+```{r error = TRUE}
+images <- magick::image_read(urls_1)
+```
+
+Nothing was assigned to the variable `images`:
+
+```{r error = TRUE}
+length(images)
+```
+
+Using `try_image_read()` shows the error message but continues:
+
+```{r}
+images <- magickx::try_image_read(urls_1) # All files can be read
+```
+
+The variable `images` now contains two (out of three) images (one was skipped):
+
+```{r}
+length(images)
+```
+
+For the following examples, we will download images from the second set of URLs
+`urls_2` (without any error):
+
+```{r}
+images <- try_image_read(urls_2)
+```
+
+## Show Example Images
+
+The variable `images` is a vector of three images. If you print them, they will
+be overlayed:
+
+```{r}
+print(images)
+```
+
+Use the function `image_append` from the `magick` package to arrange the images
+on top of each other:
+
+```{r}
+image_append(images, stack = TRUE)
+```
+
+## Define Crop Areas
+
+```{r}
+# Define path to file in the package containing crop information
+file <- system.file("extdata/crop_info.csv", package = "magickx")
+
+# Load the crop information from the file
+crop_info <- read.table(file)
+
+# Select rows of interest
+row_names <- c("DateTime", grep("^bwb0", rownames(crop_info), value = TRUE))
+crop_info <- crop_info[row_names, ]
+
+# Show the crop information
+crop_info
+```
+
+## Convert Crop Area Information to Geometry Strings
+
+```{r}
+geometries <- apply(crop_info, 1, function(x) geometry_area(
+  
+  x["width"], x["height"], x["x_off"], x["y_off"]
+))
+
+# Show the geometry strings
+geometries
+```
+
+## Create columns from cropped parts of the images
+
+```{r eval = TRUE}
+# Use first geometry to crop areas and append them vertically
+crop_to_column(images, geometries[1])
+
+# Use second geometry to crop areas and append them vertically
+crop_to_column(images, geometries[2])
+
+```
+
+## Append the columns next to each other
+
+```{r eval = TRUE}
+# Use all geometries to crop areas, append them vertically and append the
+# resulting column images horizontally
+page_image <- crop_to_column(images, geometries)
+
+# Show the resulting image
+page_image
+```
+
+## Select Rows or Columns from an Image
+
+```{r}
+# Select rows and columns
+extract(page_image, 1:2, c(1, 2, 6, 8))
+
+# Exclude rows or columns with negative indices
+extract(page_image, -2, -(3:5))
+```
+
+```{r echo = FALSE}
+#magickx:::indices_to_ranges(j)
+#border <- c(10, 10)
+#widths  <- crop_info[, "width"] + border[1]
+#heights <- crop_info[, "height"] + border[2]
+```
