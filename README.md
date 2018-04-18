@@ -12,7 +12,7 @@ You can install magickx from github with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("hsonne/magickx")
+devtools::install_github("hsonne/magickx", build_vignettes = TRUE)
 ```
 
 Documentation
