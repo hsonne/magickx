@@ -1,0 +1,35 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# magickx
+
+The goal of magickx is to extend the functionality of the magick package. 
+
+## Installation
+
+You can install magickx from github with:
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("hsonne/magickx")
+```
+
+## Documentation
+
+The package contains a vignette that explains its usage:
+
+```{r example, eval = FALSE}
+## Open the vignette
+vignette("Usage", package = "magickx")
+```
