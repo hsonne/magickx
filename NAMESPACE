@@ -3,5 +3,6 @@
 export(crop_to_column)
 export(crop_to_row)
 export(extract)
+export(image_matrix)
 export(list_to_magick)
 export(try_image_read)

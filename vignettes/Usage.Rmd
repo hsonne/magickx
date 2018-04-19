@@ -21,7 +21,7 @@ library(magickx)
 ### Define a Helper Function to Create URLs
 
 ```{r}
-to_image_url <- function(day_string, hours) file.path(
+to_image_url <- function(day_string, hours = 0:23) file.path(
   "http://wind.met.fu-berlin.de/loops/bwb", 
   sprintf("BWBRR_TEXT_%s_%02d00.gif", day_string, hours)
 )
@@ -31,12 +31,12 @@ to_image_url <- function(day_string, hours) file.path(
 
 ```{r}
 # Define different sets of URLs
-urls_1 <- to_image_url(day_string = "20180417", hours = 8:10)
-urls_2 <- to_image_url(day_string = "20170103", hours = 14:16)
+urls_1 <- to_image_url(day_string = "20180417")
+urls_2 <- to_image_url(day_string = "20170103")
 
-# Show URLs
-urls_1
-urls_2
+# Show some URLs
+head(urls_1)
+head(urls_2)
 ```
 
 ### Read Images from URLs
@@ -88,10 +88,10 @@ print(images)
 ```
 
 Use the function `image_append` from the `magick` package to arrange the images
-on top of each other:
+on top of each other (here only the first two):
 
 ```{r}
-image_append(images, stack = TRUE)
+image_append(images[1:2], stack = TRUE)
 ```
 
 ## Define Crop Areas
@@ -103,8 +103,8 @@ file <- system.file("extdata/crop_info.csv", package = "magickx")
 # Load the crop information from the file
 crop_info <- read.table(file)
 
-# Select rows of interest
-row_names <- c("DateTime", grep("^bwb0", rownames(crop_info), value = TRUE))
+# Select rows of interest0
+row_names <- c("DateTime", grep("^bwb[0:1]", rownames(crop_info), value = TRUE))
 crop_info <- crop_info[row_names, ]
 
 # Show the crop information
@@ -123,18 +123,17 @@ geometries <- apply(crop_info, 1, function(x) geometry_area(
 geometries
 ```
 
-## Create columns from cropped parts of the images
+## Create Columns from Cropped Parts of the Images
 
 ```{r eval = TRUE}
-# Use first geometry to crop areas and append them vertically
-crop_to_column(images, geometries[1])
+# Crop area "DateTime" in each image and append the areas vertically
+crop_to_column(images, geometries["DateTime"])
 
-# Use second geometry to crop areas and append them vertically
-crop_to_column(images, geometries[2])
-
+# Crop area "bwb15" in each image and append the areas horizontally
+crop_to_row(images, geometries["bwb15"])
 ```
 
-## Append the columns next to each other
+## Append Image Columns Next to Each Other
 
 ```{r eval = TRUE}
 # Use all geometries to crop areas, append them vertically and append the
@@ -149,14 +148,22 @@ page_image
 
 ```{r}
 # Select rows and columns
-extract(page_image, 1:2, c(1, 2, 6, 8))
+extract(page_image, 1:10, 1:10)
 
 # Exclude rows or columns with negative indices
-extract(page_image, -2, -(3:5))
+image <- extract(page_image, -(5:15), -c(9:10, 18))
+```
+
+The same result as above can be achieved like this:
+
+```{r}
+gauge_images <- lapply(geometries, image_crop, image = images)
+
+# Arrange vector of images in a matrix
+image_matrix(list_to_magick(gauge_images), ncol = length(gauge_images))
 ```
 
 ```{r echo = FALSE}
-#magickx:::indices_to_ranges(j)
 #border <- c(10, 10)
 #widths  <- crop_info[, "width"] + border[1]
 #heights <- crop_info[, "height"] + border[2]

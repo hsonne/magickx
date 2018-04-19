@@ -1,3 +1,43 @@
+# image_matrix -----------------------------------------------------------------
+
+#' Arrange Images in a Matrix
+#' 
+#' @param images object of class "magick" representing one or more images
+#' @param nrow number of rows
+#' @param ncol number of columns
+#' @param byrow logical. Shall images be arranged along rows or along columns?
+#' @param dimnames list of vectors of row and column names, respectively
+#' 
+#' @export
+#' 
+image_matrix <- function(
+  images, nrow = NULL, ncol = NULL, byrow = FALSE, dimnames = NULL
+)
+{
+  # Create arguments for matrix()
+  arguments <- as.list(match.call())[-1] # remove first element (function call)
+  
+  # Exclude argument "images"
+  arguments <- arguments[setdiff(names(arguments), "images")]
+  
+  # Call matrix() with a sequence between one and the number of images
+  indices <- do.call(matrix, c(list(seq_along(images)), arguments))
+  
+  # Combine images horizontally to rows
+  row_list <- lapply(seq_len(nrow(indices)), function(i) {
+    
+    magick::image_append(images[indices[i, ]])
+  })
+  
+  # Combine row images vertically
+  image <- magick::image_append(list_to_magick(row_list), stack = TRUE)
+  
+  # Set attribute "matrix"
+  class(image) <- unique(c("matrix-image", class(image)))
+  
+  structure(image, matrix = indices)
+}
+
 # extract ----------------------------------------------------------------------
 
 #' Extract Horizontal or Vertical Stripes from Image
