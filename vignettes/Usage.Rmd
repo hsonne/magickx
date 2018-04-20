@@ -18,28 +18,24 @@ library(magickx)
 
 ## Load Example Images
 
-### Define a Helper Function to Create URLs
-
 ```{r}
+# Define a Helper Function to Create URLs
 to_image_url <- function(day_string, hours = 0:23) file.path(
   "http://wind.met.fu-berlin.de/loops/bwb", 
   sprintf("BWBRR_TEXT_%s_%02d00.gif", day_string, hours)
 )
-```
 
-### Define URLs
-
-```{r}
 # Define different sets of URLs
 urls_1 <- to_image_url(day_string = "20180417")
 urls_2 <- to_image_url(day_string = "20170103")
 
 # Show some URLs
 head(urls_1)
-head(urls_2)
 ```
 
 ### Read Images from URLs
+
+#### Read with `image_read()`
 
 With the `image_read()`-function of the `magick` package you can read images 
 from many files or URLs in one function call. This function stops if there is
@@ -58,6 +54,8 @@ Nothing was assigned to the variable `images`:
 ```{r error = TRUE}
 length(images)
 ```
+
+#### Read with `try_image_read()`
 
 Using `try_image_read()` shows the error message but continues:
 
@@ -80,18 +78,18 @@ images <- try_image_read(urls_2)
 
 ## Show Example Images
 
-The variable `images` is a vector of three images. If you print them, they will
-be overlayed:
+The variable `images` is a vector of `r length(images)` images. If you print 
+them, they will be overlayed:
 
 ```{r}
 print(images)
 ```
 
-Use the function `image_append` from the `magick` package to arrange the images
-on top of each other (here only the first two):
+Using `image_animate()` from the `magick` package we can show them all one after
+each other:
 
 ```{r}
-image_append(images[1:2], stack = TRUE)
+image_animate(images, fps = 2)
 ```
 
 ## Define Crop Areas
@@ -101,23 +99,13 @@ image_append(images[1:2], stack = TRUE)
 file <- system.file("extdata/crop_info.csv", package = "magickx")
 
 # Load the crop information from the file
-crop_info <- read.table(file)
+crop_info <- read.table(file, stringsAsFactors = FALSE)
 
-# Select rows of interest0
+# Specify rows of interest
 row_names <- c("DateTime", grep("^bwb[0:1]", rownames(crop_info), value = TRUE))
-crop_info <- crop_info[row_names, ]
 
-# Show the crop information
-crop_info
-```
-
-## Convert Crop Area Information to Geometry Strings
-
-```{r}
-geometries <- apply(crop_info, 1, function(x) geometry_area(
-  
-  x["width"], x["height"], x["x_off"], x["y_off"]
-))
+# Select the geometry strings of rows of interest and name them
+geometries <- setNames(crop_info[row_names, "geometry"], row_names)
 
 # Show the geometry strings
 geometries
@@ -144,6 +132,15 @@ page_image <- crop_to_column(images, geometries)
 page_image
 ```
 
+The same result can be achieved with:
+
+```{r}
+gauge_images <- lapply(geometries, image_crop, image = images)
+
+# Arrange vector of images in a matrix
+image_matrix(list_to_magick(gauge_images), ncol = length(gauge_images))
+```
+
 ## Select Rows or Columns from an Image
 
 ```{r}
@@ -151,16 +148,7 @@ page_image
 extract(page_image, 1:10, 1:10)
 
 # Exclude rows or columns with negative indices
-image <- extract(page_image, -(5:15), -c(9:10, 18))
-```
-
-The same result as above can be achieved like this:
-
-```{r}
-gauge_images <- lapply(geometries, image_crop, image = images)
-
-# Arrange vector of images in a matrix
-image_matrix(list_to_magick(gauge_images), ncol = length(gauge_images))
+extract(page_image, -(5:15), -c(9:10, 18))
 ```
 
 ```{r echo = FALSE}
