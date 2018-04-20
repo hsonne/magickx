@@ -14,13 +14,15 @@ image_matrix <- function(
   images, nrow = NULL, ncol = NULL, byrow = FALSE, dimnames = NULL
 )
 {
-  # Create arguments for matrix()
-  arguments <- as.list(match.call())[-1] # remove first element (function call)
+  # Get the list of arguments that were passed to this function. Remove the 
+  # first element (function call)
+  arguments <- as.list(match.call())[-1] 
   
   # Exclude argument "images"
   arguments <- arguments[setdiff(names(arguments), "images")]
   
-  # Call matrix() with a sequence between one and the number of images
+  # Call matrix() with a sequence between one and the number of images as the 
+  # matrix values and the arguments passed to this function
   indices <- do.call(matrix, c(list(seq_along(images)), arguments))
   
   # Combine images horizontally to rows
@@ -28,14 +30,30 @@ image_matrix <- function(
     
     magick::image_append(images[indices[i, ]])
   })
-  
+
   # Combine row images vertically
   image <- magick::image_append(list_to_magick(row_list), stack = TRUE)
   
   # Set attribute "matrix"
   class(image) <- unique(c("matrix-image", class(image)))
+
+  # Get the heights of the row images
+  heights <- sapply(row_list, image_properties, "height")
   
-  structure(image, matrix = indices)
+  # Treat the widths of the first row as the widths of the matrix columns
+  widths <- image_properties(images[indices[1, ]], "width")
+  
+  # Set attributs width and height
+  structure(image, indices = indices, widths = widths, heights = heights)
+}
+
+# image_properties -------------------------------------------------------------
+image_properties <- function(images, property)
+{
+  unname(sapply(
+    X = images, 
+    FUN = function(image) magick::image_info(image)[[property]]
+  ))
 }
 
 # extract ----------------------------------------------------------------------
@@ -50,8 +68,10 @@ image_matrix <- function(
 #' 
 #' @export
 #' 
-extract <- function(image, i, j, widths = NULL, heights = NULL)
+extract <- function(image, i = NULL, j = NULL, widths = NULL, heights = NULL)
 {
+  #stopifnot(inherits(image, "matrix-image"))
+  
   if (is.null(widths)) {
     
     widths <- attr(image, "widths")

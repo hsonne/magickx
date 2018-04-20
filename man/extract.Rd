@@ -4,7 +4,7 @@
 \alias{extract}
 \title{Extract Horizontal or Vertical Stripes from Image}
 \usage{
-extract(image, i, j, widths = NULL, heights = NULL)
+extract(image, i = NULL, j = NULL, widths = NULL, heights = NULL)
 }
 \arguments{
 \item{image}{object of class "image-magick"}

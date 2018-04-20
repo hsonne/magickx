@@ -115,10 +115,10 @@ geometries
 
 ```{r eval = TRUE}
 # Crop area "DateTime" in each image and append the areas vertically
-crop_to_column(images, geometries["DateTime"])
+image_matrix(image_crop(images, geometries["DateTime"]))
 
 # Crop area "bwb15" in each image and append the areas horizontally
-crop_to_row(images, geometries["bwb15"])
+image_matrix(image_crop(images, geometries["bwb15"]), nrow = 1)
 ```
 
 ## Append Image Columns Next to Each Other
@@ -126,19 +126,16 @@ crop_to_row(images, geometries["bwb15"])
 ```{r eval = TRUE}
 # Use all geometries to crop areas, append them vertically and append the
 # resulting column images horizontally
-page_image <- crop_to_column(images, geometries)
+gauge_images <- lapply(geometries, image_crop, image = images)
+
+# Number of columns in image matrix to be created
+n_col <- length(gauge_images)
+
+# Arrange vector of images in a matrix
+page_image <- image_matrix(list_to_magick(gauge_images), ncol = n_col)
 
 # Show the resulting image
 page_image
-```
-
-The same result can be achieved with:
-
-```{r}
-gauge_images <- lapply(geometries, image_crop, image = images)
-
-# Arrange vector of images in a matrix
-image_matrix(list_to_magick(gauge_images), ncol = length(gauge_images))
 ```
 
 ## Select Rows or Columns from an Image
