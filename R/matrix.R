@@ -35,7 +35,7 @@ image_matrix <- function(
   image <- magick::image_append(list_to_magick(row_list), stack = TRUE)
   
   # Set attribute "matrix"
-  class(image) <- unique(c("matrix-image", class(image)))
+  class(image) <- unique(c("matrix_image", class(image)))
 
   # Get the heights of the row images
   heights <- sapply(row_list, image_properties, "height")
@@ -56,21 +56,55 @@ image_properties <- function(images, property)
   ))
 }
 
+# dim.matrix_image -------------------------------------------------------------
+
+#' Dimension of a "Matrix Image"
+#' 
+#' @param x object of class "matrix_image", as returned by 
+#'   \code{\link{image_matrix}}
+#' 
+#' @return vector of two integers (number of rows, number of columns)
+#' 
+#' @export
+#' 
+dim.matrix_image <- function(x)
+{
+  dim(attr(x, "indices"))
+}
+
+# [.matrix_image ---------------------------------------------------------------
+
+#' Extract Rows and Columns from "Matrix Image"
+#' 
+#' @param x object of class "matrix_image"
+#' @param \dots arguments passed to \code{\link{extract}}
+#' 
+#' @return object of class "image-magick"
+#' 
+#' @export
+#' 
+"[.matrix_image" <- function(x, ...)
+{
+  extract(x, ...)
+}
+
 # extract ----------------------------------------------------------------------
 
 #' Extract Horizontal or Vertical Stripes from Image
 #' 
-#' @param image object of class "image-magick"
+#' @param image object of class "matrix_image"
 #' @param i row indices
 #' @param j column indices
 #' @param widths column widths in pixels
 #' @param heights row heights in pixels
 #' 
-#' @export
-#' 
 extract <- function(image, i = NULL, j = NULL, widths = NULL, heights = NULL)
 {
-  #stopifnot(inherits(image, "matrix-image"))
+  stopifnot(inherits(image, "matrix_image"))
+  
+  i <- if (missing(i)) NULL else i
+  
+  j <- if (missing(j)) NULL else j
   
   if (is.null(widths)) {
     
@@ -149,11 +183,10 @@ to_pixel_ranges <- function(sizes, indices)
 # indices_to_ranges ------------------------------------------------------------
 indices_to_ranges <- function(indices, max_index = 0)
 {
-  #indices <- c(3:4, 7:9, 12); max_index <- 15
-  
   if (any(indices < 0)) {
     
     stopifnot(all(indices < 0))
+    
     stopifnot(max_index >= max(abs(indices)))
     
     indices <- setdiff(seq_len(max_index), abs(indices))

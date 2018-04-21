@@ -7,7 +7,7 @@
 extract(image, i = NULL, j = NULL, widths = NULL, heights = NULL)
 }
 \arguments{
-\item{image}{object of class "image-magick"}
+\item{image}{object of class "matrix_image"}
 
 \item{i}{row indices}
 

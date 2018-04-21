@@ -20,14 +20,14 @@ library(magickx)
 
 ```{r}
 # Define a Helper Function to Create URLs
-to_image_url <- function(day_string, hours = 0:23) file.path(
+image_URLs <- function(day_string, hours = 0:23) file.path(
   "http://wind.met.fu-berlin.de/loops/bwb", 
   sprintf("BWBRR_TEXT_%s_%02d00.gif", day_string, hours)
 )
 
 # Define different sets of URLs
-urls_1 <- to_image_url(day_string = "20180417")
-urls_2 <- to_image_url(day_string = "20170103")
+urls_1 <- image_URLs(day_string = "20180417", 8:10)
+urls_2 <- image_URLs(day_string = "20170103", 13:23)
 
 # Show some URLs
 head(urls_1)
@@ -35,42 +35,40 @@ head(urls_1)
 
 ### Read Images from URLs
 
-#### Read with `image_read()`
-
-With the `image_read()`-function of the `magick` package you can read images 
+With the `image_read()` function of the `magick` package you can read images 
 from many files or URLs in one function call. This function stops if there is
-any path or URL from which no image could be read. The package `magickx` 
-contains a function `try_image_read()` that does not stop on errors but skips 
-the file that cannot be read and prints an error message. 
+at least one path or URL from which no image could be read. The package
+`magickx` contains a function `try_image_read()` that does not stop on errors
+but skips files that do not exist or from which no image can be read and prints
+out the corresponging error messages.
 
-Using `image_read()` stops with an error:
+#### Read with `image_read()` from the `magick` package
 
-```{r error = TRUE}
-images <- magick::image_read(urls_1)
-```
+```{r error = TRUE, collapse = TRUE}
+# Try to read the images
+images <- image_read(urls_1)
 
-Nothing was assigned to the variable `images`:
-
-```{r error = TRUE}
+# How many images have been read?
 length(images)
 ```
 
-#### Read with `try_image_read()`
+The execution stops, so that the variable `images` is not created.
 
-Using `try_image_read()` shows the error message but continues:
+#### Read with `try_image_read()` from the `magickx` package
 
-```{r}
-images <- magickx::try_image_read(urls_1) # All files can be read
-```
+```{r collapse = TRUE}
+# Try to read the images
+images <- try_image_read(urls_1)
 
-The variable `images` now contains two (out of three) images (one was skipped):
-
-```{r}
+# How many images have been read?
 length(images)
 ```
 
+Error messages are shown but the function completes. The variable `images` now
+contains `r (n1 <- length(images))` images (`r (n2 <- length(urls_1))` were
+requested, `r (n <- n2 - n1)` `r ifelse(n > 1, "were", "was")` skipped). 
 For the following examples, we will download images from the second set of URLs
-`urls_2` (without any error):
+(`urls_2`). This works without any error:
 
 ```{r}
 images <- try_image_read(urls_2)
@@ -85,8 +83,8 @@ them, they will be overlayed:
 print(images)
 ```
 
-Using `image_animate()` from the `magick` package we can show them all one after
-each other:
+Use `image_animate()` from the `magick` package to show them one after each
+other in a short animation:
 
 ```{r}
 image_animate(images, fps = 2)
@@ -138,14 +136,16 @@ page_image <- image_matrix(list_to_magick(gauge_images), ncol = n_col)
 page_image
 ```
 
-## Select Rows or Columns from an Image
+## Extract Rows or Columns of an Image
 
 ```{r}
-# Select rows and columns
-extract(page_image, 1:10, 1:10)
+# Select rows and columns "positively"
+page_image[1:5, 1:10]
+page_image[1:2, ]
+page_image[, c(1, 3, 5)]
 
 # Exclude rows or columns with negative indices
-extract(page_image, -(5:15), -c(9:10, 18))
+page_image[-seq(1, nrow(page_image), by = 2), -c(9:10, 18)]
 ```
 
 ```{r echo = FALSE}
