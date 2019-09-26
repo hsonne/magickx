@@ -142,12 +142,13 @@ page_image
 
 ```{r}
 # Select rows and columns "positively"
-page_image[1:5, 1:10]
+
+#page_image[1:5, 1:10]
 page_image[1:2, ]
-page_image[, c(1, 3, 5)]
+#page_image[, c(1, 3, 5)]
 
 # Exclude rows or columns with negative indices
-page_image[-seq(1, nrow(page_image), by = 2), -c(9:10, 18)]
+#page_image[-seq(1, nrow(page_image), by = 2), -c(9:10, 18)]
 ```
 
 ```{r echo = FALSE}
