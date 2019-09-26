@@ -1,18 +1,24 @@
-Package: magickx
 Type: Package
+Package: magickx
 Title: Extension of the R-Package magick
 Version: 0.1.0
 Author: Hauke Sonnenberg
 Maintainer: Hauke Sonnenberg <hauke.sonnenberg@gmx.de>
-Description: Image manipulation based on the magick package. 
-    It contains functions to select or remove horizontal or vertical stripes 
-    from an image. These may be used to cut off undesired areas from an image, 
-    e.g. as preparation for optical character recognition (OCR).
-Imports: magick (>= 1.8)
-Suggests: kwb.furain
+Description: Image manipulation based on the magick package.  It
+    contains functions to select or remove horizontal or vertical stripes
+    from an image. These may be used to cut off undesired areas from an
+    image, e.g. as preparation for optical character recognition (OCR).
 License: GPL-2
-LazyData: TRUE
-Suggests: knitr,
+Imports: 
+    magick (>= 1.8)
+Suggests: 
+    knitr,
+    kwb.furain,
     rmarkdown
-VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+VignetteBuilder: 
+    knitr
+Remotes: 
+    github::kwb.furain
+Encoding: UTF-8
+LazyData: TRUE
+RoxygenNote: 6.1.1
