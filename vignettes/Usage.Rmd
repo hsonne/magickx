@@ -25,9 +25,11 @@ image_URLs <- function(day_string, hours = 0:23) file.path(
   sprintf("BWBRR_TEXT_%s_%02d00.gif", day_string, hours)
 )
 
+yesterday <- gsub("-", "", Sys.Date()-1)
+
 # Define different sets of URLs
-urls_1 <- image_URLs(day_string = "20180417", 8:10)
-urls_2 <- image_URLs(day_string = "20170103", 13:23)
+urls_1 <- image_URLs(day_string = yesterday, 8:10)
+urls_2 <- image_URLs(day_string = yesterday, 13:23)
 
 # Show some URLs
 head(urls_1)
