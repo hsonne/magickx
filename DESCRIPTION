@@ -18,7 +18,7 @@ Suggests:
 VignetteBuilder: 
     knitr
 Remotes: 
-    github::kwb.furain
+    github::kwb-r/kwb.furain
 Encoding: UTF-8
 LazyData: TRUE
 RoxygenNote: 6.1.1
