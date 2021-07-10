@@ -4,8 +4,6 @@
 [![Project Status](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/magickx)]()
 
-# magickx
-
 Image manipulation based on the magick package.  It
 contains functions to select or remove horizontal or vertical stripes
 from an image. These may be used to cut off undesired areas from an
@@ -30,9 +28,3 @@ if (! require("remotes")) {
 # Install KWB package 'magickx' from GitHub
 remotes::install_github("KWB-R/magickx")
 ```
-
-## Documentation
-
-Release: [https://kwb-r.github.io/magickx](https://kwb-r.github.io/magickx)
-
-Development: [https://kwb-r.github.io/magickx/dev](https://kwb-r.github.io/magickx/dev)

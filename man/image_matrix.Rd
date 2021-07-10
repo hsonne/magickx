@@ -4,8 +4,7 @@
 \alias{image_matrix}
 \title{Arrange Images in a Matrix}
 \usage{
-image_matrix(images, nrow = NULL, ncol = NULL, byrow = FALSE,
-  dimnames = NULL)
+image_matrix(images, nrow = NULL, ncol = NULL, byrow = FALSE, dimnames = NULL)
 }
 \arguments{
 \item{images}{object of class "magick" representing one or more images}
